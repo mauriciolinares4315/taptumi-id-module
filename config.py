@@ -24,3 +24,4 @@ class Config:
 
     SITE_NAME = os.environ.get("SITE_NAME", "ID de Emergencia")
     SLUG_RANDOM_SUFFIX_LEN = 4
+    TAPTUMI_LANDING_URL = os.environ.get("TAPTUMI_LANDING_URL", "#").strip().strip('"').strip("'")

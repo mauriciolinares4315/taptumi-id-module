@@ -97,7 +97,7 @@ h2 { font-size: 18px; font-weight: 700; }
 h3 { font-size: 14px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.08em; }
 p { margin: 0; line-height: 1.5; }
 .muted { color: var(--text-secondary); }
-.faint { color: var(--text-faint); font-size: 13px; }
+.faint  { color: var(--text-faint); font-size: 13px; text-decoration: none;}
 
 .profile-photo { width: 84px; height: 84px; border-radius: 24px; object-fit: cover; border: 1px solid var(--glass-border); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
 .profile-photo-placeholder {
@@ -188,7 +188,7 @@ td a { color: var(--accent-action); text-decoration: none; }
 .credential-box .password { font-family: monospace; font-size: 22px; font-weight: 700; letter-spacing: 0.06em; margin-top: 6px; color: var(--glow-teal); }
 
 a.link-plain { color: var(--accent-action); text-decoration: none; font-weight: 600; font-size: 14px; }
-footer.page-footer { margin-top: 32px; text-align: center; }
+footer.page-footer { margin-top: 32px; text-align: center; text-decoration: none; gap:10px; display: flex; flex-direction: column; align-items: center; }
 
 /* Mostrar/ocultar contraseña */
 .password-wrapper { position: relative; }
@@ -281,3 +281,13 @@ select option {
   tbody td[data-label="Acciones"] { flex-direction: column; align-items: stretch; }
   tbody td[data-label="Acciones"]::before { margin-bottom: 8px; }
 }
+
+.zoomable { cursor: zoom-in; }
+.photo-viewer {
+  position: fixed; inset: 0; z-index: 1000; padding: 20px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(5, 11, 24, 0.92);
+  backdrop-filter: blur(8px);
+}
+.photo-viewer[hidden] { display: none; }
+.photo-viewer img { max-width: 100%; max-height: 100%; border-radius: var(--radius-md); }

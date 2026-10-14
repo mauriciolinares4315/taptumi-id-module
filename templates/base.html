@@ -22,6 +22,9 @@
 
     {% block content %}{% endblock %}
   </div>
+  <div id="photo-viewer" class="photo-viewer" onclick="closePhotoViewer()" hidden>
+    <img id="photo-viewer-img" alt="">
+  </div>
   <script src="{{ url_for('static', filename='js/app.js') }}"></script>
   {% block scripts %}{% endblock %}
 </body>

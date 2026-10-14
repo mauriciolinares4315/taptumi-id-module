@@ -13,7 +13,7 @@ import photo_storage
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
 PERSON_FIELDS = [
-    "full_name", "document_id", "address", "phone",
+    "full_name", "document_type","document_id", "address", "phone",
     "emergency_contact_1_name", "emergency_contact_1_phone", "emergency_contact_1_relationship",
     "emergency_contact_2_name", "emergency_contact_2_phone", "emergency_contact_2_relationship",
     "emergency_contact_3_name", "emergency_contact_3_phone", "emergency_contact_3_relationship",
@@ -24,7 +24,7 @@ PERSON_FIELDS = [
 PET_FIELDS = [
     "pet_name", "species", "breed", "color_markings", "sex", "age_approx", "microchip",
     "owner_name", "owner_phone", "owner_address",
-    "conditions", "allergies", "medications",
+    "conditions", "allergies", "medications","trained", "commands_known", "nicknames",
     "temperament_notes", "reward_offered",
 ]
 
@@ -141,15 +141,27 @@ def create_user():
         )
 
         photo = request.files.get("photo")
-        if photo and photo.filename:
+        responsible = request.files.get("responsible_photo")
+        if responsible and responsible.filename:
             try:
-                photo_url, photo_public_id = photo_storage.upload_photo(photo, slug, kind="persona")
+                r_url, r_pid = photo_storage.upload_document(
+                    responsible, slug, doc_name="responsible", kind="persona"
+                )
                 db.execute(
-                    "UPDATE users SET photo_url = ?, photo_public_id = ? WHERE slug = ?",
-                    [photo_url, photo_public_id, slug],
+                    "UPDATE users SET responsible_photo_url = ?, responsible_photo_public_id = ? WHERE slug = ?",
+                    [r_url, r_pid, slug],
                 )
             except ValueError as exc:
-                flash(f"Usuario creado, pero la foto no se pudo subir: {exc}", "error")
+                flash(f"Usuario creado, pero la foto del responsable no se pudo subir: {exc}", "error")
+        #if photo and photo.filename:
+         #   try:
+                #photo_url, photo_public_id = photo_storage.upload_photo(photo, slug, kind="persona")
+                #db.execute(
+               #     "UPDATE users SET photo_url = ?, photo_public_id = ? WHERE slug = ?",
+              #      [photo_url, photo_public_id, slug],
+             #   )
+            #except ValueError as exc:
+             #   flash(f"Usuario creado, pero la foto no se pudo subir: {exc}", "error")
 
         return render_template(
             "admin_created.html", slug=slug, pin=pin, name=full_name, kind="persona"
@@ -190,11 +202,28 @@ def edit_user(user_id):
             photo_storage.delete_photo(photo_public_id)
             photo_url, photo_public_id = None, None
 
+        responsible_url = user.get("responsible_photo_url")
+        responsible_public_id = user.get("responsible_photo_public_id")
+        responsible = request.files.get("responsible_photo")
+
+        if responsible and responsible.filename:
+            try:
+                responsible_url, responsible_public_id = photo_storage.upload_document(
+                    responsible, new_slug, doc_name="responsible", kind="persona"
+                )
+            except ValueError as exc:
+                flash(f"No se pudo subir la foto del responsable: {exc}", "error")
+        if request.form.get("remove_responsible_photo") == "1":
+            photo_storage.delete_photo(responsible_public_id)
+            responsible_url, responsible_public_id = None, None
+
         slug_changed = new_slug != user["slug"]
         db.execute(
             f"UPDATE users SET slug = ?, {set_clause}, photo_url = ?, photo_public_id = ?, "
+            f"responsible_photo_url = ?, responsible_photo_public_id = ?, "
             f"updated_at = datetime('now') WHERE id = ?",
-            [new_slug] + values + [photo_url, photo_public_id, user_id],
+            [new_slug] + values + [photo_url, photo_public_id,
+                                    responsible_url, responsible_public_id, user_id],
         )
         if slug_changed:
             flash(
@@ -228,6 +257,7 @@ def delete_user(user_id):
     user = db.query_one("SELECT * FROM users WHERE id = ?", [user_id])
     if user:
         photo_storage.delete_photo(user.get("photo_public_id"))
+        photo_storage.delete_photo(user.get("responsible_photo_public_id"))
         db.execute("DELETE FROM users WHERE id = ?", [user_id])
         flash(f"Usuario '{user['full_name']}' eliminado permanentemente.", "success")
     return redirect(url_for("admin.dashboard"))
@@ -278,15 +308,27 @@ def create_pet():
         )
 
         photo = request.files.get("photo")
-        if photo and photo.filename:
+        responsible = request.files.get("responsible_photo")
+        if responsible and responsible.filename:
             try:
-                photo_url, photo_public_id = photo_storage.upload_photo(photo, slug, kind="mascota")
+                r_url, r_pid = photo_storage.upload_document(
+                    responsible, slug, doc_name="responsible", kind="mascota"
+                )
                 db.execute(
-                    "UPDATE pets SET photo_url = ?, photo_public_id = ? WHERE slug = ?",
-                    [photo_url, photo_public_id, slug],
+                    "UPDATE pets SET responsible_photo_url = ?, responsible_photo_public_id = ? WHERE slug = ?",
+                    [r_url, r_pid, slug],
                 )
             except ValueError as exc:
-                flash(f"Mascota creada, pero la foto no se pudo subir: {exc}", "error")
+                flash(f"Mascota creada, pero la foto del responsable no se pudo subir: {exc}", "error")
+        #if photo and photo.filename:
+         #   try:
+          #      photo_url, photo_public_id = photo_storage.upload_photo(photo, slug, kind="mascota")
+           #     db.execute(
+            #        "UPDATE pets SET photo_url = ?, photo_public_id = ? WHERE slug = ?",
+             #       [photo_url, photo_public_id, slug],
+              #  )
+            #except ValueError as exc:
+             #   flash(f"Mascota creada, pero la foto no se pudo subir: {exc}", "error")
 
         vaccine_card = request.files.get("vaccine_card")
         if vaccine_card and vaccine_card.filename:
@@ -357,12 +399,29 @@ def edit_pet(pet_id):
             photo_storage.delete_photo(vaccine_card_public_id)
             vaccine_card_url, vaccine_card_public_id = None, None
 
+        responsible_url = pet.get("responsible_photo_url")
+        responsible_public_id = pet.get("responsible_photo_public_id")
+        responsible = request.files.get("responsible_photo")
+        if responsible and responsible.filename:
+            try:
+                responsible_url, responsible_public_id = photo_storage.upload_document(
+                    responsible, new_slug, doc_name="responsible", kind="mascota"
+                )
+            except ValueError as exc:
+                flash(f"No se pudo subir la foto del responsable: {exc}", "error")
+        if request.form.get("remove_responsible_photo") == "1":
+            photo_storage.delete_photo(responsible_public_id)
+            responsible_url, responsible_public_id = None, None
+
         slug_changed = new_slug != pet["slug"]
         db.execute(
             f"UPDATE pets SET slug = ?, {set_clause}, sterilized = ?, photo_url = ?, photo_public_id = ?, "
-            f"vaccine_card_url = ?, vaccine_card_public_id = ?, updated_at = datetime('now') WHERE id = ?",
+            f"vaccine_card_url = ?, vaccine_card_public_id = ?, "
+            f"responsible_photo_url = ?, responsible_photo_public_id = ?, "
+            f"updated_at = datetime('now') WHERE id = ?",
             [new_slug] + values + [sterilized, photo_url, photo_public_id,
-                                    vaccine_card_url, vaccine_card_public_id, pet_id],
+                                    vaccine_card_url, vaccine_card_public_id,
+                                    responsible_url, responsible_public_id, pet_id],
         )
         if slug_changed:
             flash(
@@ -396,6 +455,8 @@ def delete_pet(pet_id):
     pet = db.query_one("SELECT * FROM pets WHERE id = ?", [pet_id])
     if pet:
         photo_storage.delete_photo(pet.get("photo_public_id"))
+        photo_storage.delete_photo(pet.get("vaccine_card_public_id"))
+        photo_storage.delete_photo(pet.get("responsible_photo_public_id"))
         db.execute("DELETE FROM pets WHERE id = ?", [pet_id])
         flash(f"Mascota '{pet['pet_name']}' eliminada permanentemente.", "success")
     return redirect(url_for("admin.dashboard"))

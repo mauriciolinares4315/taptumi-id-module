@@ -75,3 +75,12 @@ function shareLocationAndOpenWhatsapp(event, link) {
   );
   return false;
 }
+
+function openPhotoViewer(src) {
+  document.getElementById("photo-viewer-img").src = src;
+  document.getElementById("photo-viewer").hidden = false;
+}
+function closePhotoViewer() {
+  document.getElementById("photo-viewer").hidden = true;
+}
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") closePhotoViewer(); });

@@ -55,7 +55,7 @@ def upload_photo(file_storage, slug: str, kind: str = "persona", max_bytes: int 
         public_id=public_id,
         overwrite=True,
         resource_type="image",
-        transformation=[{"width": 500, "height": 500, "crop": "fill", "gravity": "face"}],
+        transformation=[{"width": 1000, "height": 1000, "crop": "fill", "gravity": "face"}],
     )
     return result["secure_url"], result["public_id"]
 

@@ -30,7 +30,7 @@ PET_MEDICAL_FIELDS = [
 ]
 
 PERSON_EDITABLE_FIELDS = [
-    "full_name", "document_id", "address", "phone",
+    "full_name", "document_type", "document_id", "address", "phone",
     "emergency_contact_1_name", "emergency_contact_1_phone", "emergency_contact_1_relationship",
     "emergency_contact_2_name", "emergency_contact_2_phone", "emergency_contact_2_relationship",
     "emergency_contact_3_name", "emergency_contact_3_phone", "emergency_contact_3_relationship",
@@ -41,7 +41,7 @@ PERSON_EDITABLE_FIELDS = [
 PET_EDITABLE_FIELDS = [
     "pet_name", "species", "breed", "color_markings", "sex", "age_approx", "microchip",
     "owner_name", "owner_phone", "owner_address",
-    "conditions", "allergies", "medications",
+    "conditions", "allergies", "medications", "trained", "commands_known", "nicknames",
     "temperament_notes", "reward_offered",
 ]
 
@@ -203,6 +203,22 @@ def edit_profile(slug):
                 vaccine_card_url, vaccine_card_public_id = None, None
 
         extra_updates = {}
+
+        responsible_url = record.get("responsible_photo_url")
+        responsible_public_id = record.get("responsible_photo_public_id")
+        new_responsible = request.files.get("responsible_photo")
+        if new_responsible and new_responsible.filename:
+            try:
+                responsible_url, responsible_public_id = photo_storage.upload_document(
+                    new_responsible, slug, doc_name="responsible", kind=kind
+                )
+            except ValueError as exc:
+                flash(str(exc), "error")
+                return render_template(form_template, **{context_key: record})
+        if request.form.get("remove_responsible_photo") == "1":
+            photo_storage.delete_photo(responsible_public_id)
+            responsible_url, responsible_public_id = None, None
+
         if kind == "mascota":
             sterilized_raw = request.form.get("sterilized", "")
             extra_updates["sterilized"] = (
@@ -210,6 +226,8 @@ def edit_profile(slug):
             )
             extra_updates["vaccine_card_url"] = vaccine_card_url
             extra_updates["vaccine_card_public_id"] = vaccine_card_public_id
+            extra_updates["responsible_photo_url"] = responsible_url
+            extra_updates["responsible_photo_public_id"] = responsible_public_id
 
         set_parts = [f"{f} = ?" for f in editable_fields]
         params = list(values)

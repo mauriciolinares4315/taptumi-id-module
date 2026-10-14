@@ -5,14 +5,14 @@
 <div class="glass-card">
   <div class="id-header">
     {% if user.photo_url %}
-      <img class="profile-photo" src="{{ user.photo_url }}" alt="Foto de {{ user.full_name }}">
+      <img class="profile-photo zoomable" src="{{ user.photo_url }}" alt="..." onclick="openPhotoViewer(this.src)">
     {% else %}
       <div class="profile-photo-placeholder">{{ user.full_name[0] | upper }}</div>
     {% endif %}
     <div class="id-meta">
       <p class="eyebrow">Ficha de identificación</p>
       <h1>{{ user.full_name }}</h1>
-      {% if user.document_id %}<p class="muted">Documento: {{ user.document_id }}</p>{% endif %}
+      {% if user.document_id %}<p class="muted">{{ user.document_type or 'Documento' }}: {{ user.document_id }}</p>{% endif %}
     </div>
   </div>
 
@@ -51,6 +51,13 @@
     {% endfor %}
   </div>
   {% endif %}
+  {% if user.responsible_photo_url %}
+    <div class="glass-section">
+      <h3>Responsable</h3>
+      <img class="profile-photo zoomable" src="{{ user.responsible_photo_url }}" alt="Foto del responsable"
+          style="margin-top:10px;" onclick="openPhotoViewer(this.src)">
+    </div>
+  {% endif %}
 
   <div class="glass-section">
     <h3>Información médica</h3>
@@ -82,13 +89,11 @@
       </form>
     {% endif %}
   </div>
-
-  <div class="btn-row" style="margin-top:20px;">
-    <a class="btn btn-ghost" href="{{ url_for('public.edit_profile', slug=user.slug) }}">Editar perfil</a>
-  </div>
+  
 </div>
 
 <footer class="page-footer">
-  <span class="faint">{{ site_name }}</span>
+  <a class="faint" href="{{ url_for('public.edit_profile', slug=user.slug) }}">Editar perfil</a>
+  <p class="faint"><a href="{{ taptumi_landing_url }}" target="_blank" rel="noopener" class="faint">© Taptumi. Todos los derechos reservados.<br>Bucaramanga, Colombia.</a></p>
 </footer>
 {% endblock %}

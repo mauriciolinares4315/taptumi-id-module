@@ -169,6 +169,14 @@ def init_schema():
 _MIGRATIONS = [
     ("pets", "vaccine_card_url", "TEXT"),
     ("pets", "vaccine_card_public_id", "TEXT"),
+    ("users", "document_type", "TEXT"),
+    ("pets", "trained", "TEXT"),
+    ("pets", "commands_known", "TEXT"),
+    ("pets", "nicknames", "TEXT"),
+    ("users", "responsible_photo_url", "TEXT"),
+    ("users", "responsible_photo_public_id", "TEXT"),
+    ("pets", "responsible_photo_url", "TEXT"),
+    ("pets", "responsible_photo_public_id", "TEXT"),
 ]
 
 

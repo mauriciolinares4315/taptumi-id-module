@@ -21,7 +21,10 @@ def create_app():
 
     @app.context_processor
     def inject_globals():
-        return {"site_name": app.config["SITE_NAME"]}
+        return {"site_name": app.config["SITE_NAME"],
+                "taptumi_landing_url": app.config["TAPTUMI_LANDING_URL"],
+                }
+    
 
     @app.errorhandler(404)
     def not_found(_e):
