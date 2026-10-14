@@ -12,6 +12,7 @@
     <label for="slug">Slug / URL personalizada (opcional)</label>
     <input id="slug" type="text" name="slug" value="{{ form.slug or '' }}" placeholder="ej. juan-perez">
     <p class="field-hint">Si lo dejas vacío, se genera automáticamente a partir del nombre.</p>
+
     <label for="document_type">Tipo de documento</label>
     <div class="select-wrap">
       <select id="document_type" name="document_type">
@@ -20,6 +21,7 @@
         {% endfor %}
       </select>
     </div>
+    
     <label for="document_id">Documento de identidad</label>
     <input id="document_id" type="text" name="document_id" value="{{ form.document_id or '' }}">
 

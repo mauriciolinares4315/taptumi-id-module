@@ -17,10 +17,15 @@
     <label for="full_name">Nombre completo *</label>
     <input id="full_name" type="text" name="full_name" value="{{ user.full_name }}" required>
 
-    {% set current = user.document_type or '' %}
-    {% for opt in [...misma lista...] %}
+   <label for="document_type">Tipo de documento</label>
+    <div class="select-wrap">
+      <select id="document_type" name="document_type">
+        {% set current = user.document_type or '' %}
+        {% for opt in ['', 'Cédula de ciudadanía', 'Tarjeta de identidad', 'Registro civil', 'Cédula de extranjería', 'Pasaporte', 'PPT', 'Otro'] %}
       <option value="{{ opt }}" {% if opt == current %}selected{% endif %}>{{ opt if opt else 'Selecciona' }}</option>
-    {% endfor %}
+      {% endfor %}
+      </select>
+    </div>
 
     <label for="document_id">Documento de identidad</label>
     <input id="document_id" type="text" name="document_id" value="{{ user.document_id or '' }}">
